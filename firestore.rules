@@ -1,0 +1,13 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    match /users/{uid} {
+      allow read, create, update: if signedIn() && request.auth.uid == uid;
+    }
+    match /driverLocations/{uid} {
+      allow create, update: if signedIn() && request.auth.uid == uid;
+      allow read: if false; // Enable controlled nearby-driver reads only after server-side authorization is implemented.
+    }
+  }
+}
